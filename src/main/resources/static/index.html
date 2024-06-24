@@ -1,0 +1,445 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Semantic Search</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #e0f7fa;
+        }
+        .search-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 400px;
+            text-align: center;
+        }
+        .search-box {
+            width: calc(100% - 20px);
+            padding: 15px;
+            border: 2px solid #00796b;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+        .search-box:focus {
+            border-color: #004d40;
+            outline: none;
+        }
+        .search-button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #00796b;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .search-button:hover {
+            background-color: #004d40;
+        }
+        .results {
+            margin-top: 20px;
+            text-align: left;
+        }
+        .result-item {
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+            margin-bottom: 10px;
+        }
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        .result-item strong {
+            color: #00796b;
+        }
+    </style>
+    <script>
+        async function fetchSearchResults(term) {
+            const response = await fetch(`http://localhost:8080/api/semantic-search?term=${term}`);
+            const results = await response.json();
+            displayResults(results);
+        }
+        function displayResults(results) {
+            const resultsContainer = document.getElementById('results');
+            resultsContainer.innerHTML = '';
+            results.forEach(result => {
+                const item = document.createElement('div');
+                item.className = 'result-item';
+                item.innerHTML = `<strong>Arabic:</strong> ${result.arabic_sentence}<br><strong>English:</strong> ${result.english_sentence}<br><strong>Phone:</strong> ${result.phone_number}`;
+                resultsContainer.appendChild(item);
+            });
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchBox = document.getElementById('search-box');
+            searchBox.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    fetchSearchResults(searchBox.value);
+                }
+            });
+            const searchForm = document.getElementById('search-form');
+            searchForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                fetchSearchResults(searchBox.value);
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="search-container">
+        <h2>Semantic Search</h2>
+        <form id="search-form">
+            <input type="text" id="search-box" class="search-box" placeholder="Enter search term" />
+            <button type="submit" class="search-button">Search</button>
+        </form>
+        <div id="results" class="results"></div>
+    </div>
+</body>
+</html>
+-->
+
+
+<!--   <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Semantic Search</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        .search-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 500px;
+            text-align: center;
+            position: relative;
+        }
+        .search-box {
+            width: 100%;
+            padding: 8px;
+            border: 2px solid #ddd;
+            border-radius: 30px;
+            font-size: 18px;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .search-box:focus {
+            border-color: #00796b;
+            outline: none;
+        }
+        .search-button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #00796b;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+        }
+        .search-button:hover {
+            background-color: #004d40;
+        }
+        .results {
+            margin-top: 20px;
+            text-align: left;
+        }
+        .result-item {
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+            margin-bottom: 10px;
+        }
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        .result-item strong {
+            color: #00796b;
+        }
+        .autocomplete-suggestions {
+            position: absolute;
+            border: 1px solid #ddd;
+            background-color: white;
+            z-index: 1000;
+            width: 100%;
+            max-height: 200px;
+            overflow-y: auto;
+            border-radius: 0 0 5px 5px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            top: 150px; /* Adjusted to be directly below the search box */
+            left: 0;
+        }
+        .autocomplete-suggestion {
+            padding: 10px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+        }
+        .autocomplete-suggestion:last-child {
+            border-bottom: none;
+        }
+        .autocomplete-suggestion:hover {
+            background-color: #f0f0f0;
+        }
+    </style>
+    <script>
+        async function fetchSearchResults(term) {
+            const response = await fetch(`http://localhost:8080/api/semantic-search?term=${term}`);
+            const results = await response.json();
+            displayResults(results);
+        }
+
+        async function fetchAutoComplete(term) {
+            const response = await fetch(`http://localhost:8080/api/autocomplete?term=${term}`);
+            const suggestions = await response.json();
+            displayAutoCompleteSuggestions(suggestions);
+        }
+
+        function displayResults(results) {
+            const resultsContainer = document.getElementById('results');
+            resultsContainer.innerHTML = '';
+            results.forEach(result => {
+                const item = document.createElement('div');
+                item.className = 'result-item';
+                item.innerHTML = `<strong>Arabic:</strong> ${result.arabic_sentence}<br><strong>English:</strong> ${result.english_sentence}<br><strong>Phone:</strong> ${result.phone_number}`;
+                resultsContainer.appendChild(item);
+            });
+        }
+
+        function displayAutoCompleteSuggestions(suggestions) {
+            const suggestionsContainer = document.getElementById('autocomplete-suggestions');
+            suggestionsContainer.innerHTML = '';
+            suggestions.forEach(suggestion => {
+                const item = document.createElement('div');
+                item.className = 'autocomplete-suggestion';
+                item.innerText = suggestion;
+                item.onclick = () => {
+                    document.getElementById('search-box').value = suggestion;
+                    fetchSearchResults(suggestion);
+                    suggestionsContainer.innerHTML = '';
+                };
+                suggestionsContainer.appendChild(item);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchBox = document.getElementById('search-box');
+            searchBox.addEventListener('input', (e) => {
+                const term = e.target.value;
+                if (term.length > 2) {
+                    fetchAutoComplete(term);
+                } else {
+                    document.getElementById('autocomplete-suggestions').innerHTML = '';
+                }
+            });
+            const searchForm = document.getElementById('search-form');
+            searchForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                fetchSearchResults(searchBox.value);
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="search-container">
+        <h2>Semantic Search</h2>
+        <form id="search-form">
+            <input type="text" id="search-box" class="search-box" placeholder="Enter search term" autocomplete="off" />
+            <button type="submit" class="search-button">Search</button>
+            <div id="autocomplete-suggestions" class="autocomplete-suggestions"></div>
+        </form>
+        <div id="results" class="results"></div>
+    </div>
+</body>
+</html>
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Semantic Search</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        .search-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 500px;
+            text-align: center;
+            position: relative;
+        }
+        .search-box {
+            width: calc(100% - 40px);
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 30px;
+            font-size: 18px;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .search-box:focus {
+            border-color: #00796b;
+            outline: none;
+        }
+        .search-button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #00796b;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .search-button:hover {
+            background-color: #004d40;
+        }
+        .results {
+            margin-top: 20px;
+            text-align: left;
+        }
+        .result-item {
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+            margin-bottom: 10px;
+        }
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        .result-item strong {
+            color: #00796b;
+        }
+        .autocomplete-suggestions {
+            position: absolute;
+            border: 1px solid #ddd;
+            background-color: white;
+            z-index: 1000;
+            width: calc(100% - 40px);
+            max-height: 200px;
+            overflow-y: auto;
+            border-radius: 0 0 5px 5px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            top: 60px;
+            left: 20px;
+            display: none;
+        }
+        .autocomplete-suggestion {
+            padding: 10px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+        }
+        .autocomplete-suggestion:last-child {
+            border-bottom: none;
+        }
+        .autocomplete-suggestion:hover {
+            background-color: #f0f0f0;
+        }
+    </style>
+    <script>
+        async function fetchSearchResults(term) {
+            const response = await fetch(`http://localhost:8080/api/semantic-search?term=${term}`);
+            const results = await response.json();
+            displayResults(results);
+        }
+
+        async function fetchAutoComplete(term) {
+            const response = await fetch(`http://localhost:8080/api/autocomplete?term=${term}`);
+            const suggestions = await response.json();
+            displayAutoCompleteSuggestions(suggestions);
+        }
+
+        function displayResults(results) {
+            const resultsContainer = document.getElementById('results');
+            resultsContainer.innerHTML = '';
+            results.forEach(result => {
+                const item = document.createElement('div');
+                item.className = 'result-item';
+                item.innerHTML = `<strong>Arabic:</strong> ${result.arabic_sentence}<br><strong>English:</strong> ${result.english_sentence}<br><strong>Phone:</strong> ${result.phone_number}`;
+                resultsContainer.appendChild(item);
+            });
+        }
+
+        function displayAutoCompleteSuggestions(suggestions) {
+            const suggestionsContainer = document.getElementById('autocomplete-suggestions');
+            suggestionsContainer.innerHTML = '';
+            if (suggestions.length > 0) {
+                suggestionsContainer.style.display = 'block';
+                suggestions.forEach(suggestion => {
+                    const item = document.createElement('div');
+                    item.className = 'autocomplete-suggestion';
+                    item.innerText = suggestion;
+                    item.onclick = () => {
+                        document.getElementById('search-box').value = suggestion;
+                        fetchSearchResults(suggestion);
+                        suggestionsContainer.innerHTML = '';
+                        suggestionsContainer.style.display = 'none';
+                    };
+                    suggestionsContainer.appendChild(item);
+                });
+            } else {
+                suggestionsContainer.style.display = 'none';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchBox = document.getElementById('search-box');
+            searchBox.addEventListener('input', (e) => {
+                const term = e.target.value;
+                if (term.length > 2) {
+                    fetchAutoComplete(term);
+                } else {
+                    document.getElementById('autocomplete-suggestions').innerHTML = '';
+                    document.getElementById('autocomplete-suggestions').style.display = 'none';
+                }
+            });
+            const searchForm = document.getElementById('search-form');
+            searchForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                fetchSearchResults(searchBox.value);
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="search-container">
+        <h2>Semantic Search</h2>
+        <form id="search-form">
+            <input type="text" id="search-box" class="search-box" placeholder="Enter search term" autocomplete="off" />
+            <button type="submit" class="search-button">Search</button>
+            <div id="autocomplete-suggestions" class="autocomplete-suggestions"></div>
+        </form>
+        <div id="results" class="results"></div>
+    </div>
+</body>
+</html>
